@@ -28,35 +28,42 @@ pip install pararun
 git clone https://github.com/Runsheng/pararun.git
 export PATH="./pararun/pararun/":$PATH
 # after the installtion, you can run runiter.py and runpara.py from your shell
-runiter.py --help
 runpara.py --help
+usage: runpara [-h] [-f FOLDER] [-s SUFFIX] [-p CORE] [-c CMD] [-n DRYRUN]
+Run bash cmd lines for files with the same surfix
+optional arguments:
+  -f FOLDER, --folder FOLDER
+                        the folder containing all files
+  -s SUFFIX, --suffix SUFFIX
+                        the suffix of the files
+  -p CORE, --core CORE  the cores used
+  -c CMD, --cmd CMD     the cmd to run, with prefix as prefix
+  -n DRYRUN, --dryrun DRYRUN
+                        use dry run to output
+
+runiter.py --help
+usage: runiter [-h] [-r ROUND] [-c CMD] [-0 KEY0] [-1 KEY1] [--resume RESUME]
+optional arguments:
+  -r ROUND, --round ROUND
+                        how many round will this cmd runs
+  -c CMD, --cmd CMD     the cmd line to be run, with round0 and round1 indicating the iter items
+  -0 KEY0, --key0 KEY0  the indicator of the key for iter0, need to have a 0 inside
+  -1 KEY1, --key1 KEY1  the indicator of the key for iter1, need to have a 1 inside
+  --resume RESUME       try to resume the former run by find the max round
 ```
 
 
 ## <a name="examples"></a>Examples
+### Examples for runpara
 ```bash
-# test if all dependencies are installed
-trackrun.py test --install
 
-# generate the read track from minimap2 bam file
-bam2bigg.py -b group1.bam -o group1.bed
-bam2bigg.py -b group2.bam -o group2.bed
+# for a folder containing multiple bed files and one nr3c1exon.gtf file
+# you want to run bedtools intersect to get intersections for all your bed files in your current dir with the nr3c1exon.gtf region
+runpara.py -f . -s bed -p 20 -c "bedtools intersect -a prefix.bed -b nr3c1exon.gtf -wa | uniq > prefix_nr3c1.bed"
+# example to run bwa mem mapping for all fastq files in one dir 
+runpara.py -f . -s fastq -p 1 -c "bwa mem -t 32 ref.fasta prefix.fastq | samtools view -bS > prefix.bam"
 
-# merge the bed file and sort
-cat group1.bed group2.bed > read.bed
-bedtools sort -i read.bed > reads.bed
-
-# Examples for running commands:
-trackrun.py clusterj -s reads.bed -r refs.bed -t 40 # run in junction mode, generate the isoform.bed
-trackrun.py count -s reads.bed -r refs.bed -i isoform.bed # generate the csv file for isoform expression
-trackrun.py desc --isoform isoform.bed --reference ref.bed > desc.bed  # generate the description for each novel isoform
-
-# alternative for cluster
-trackrun.py cluster -s reads.bed -r refs.bed -t 40 # run in exon/intron intersection mode， slower
 ```
 
 
 ## Citation
-Please kindly cite our paper in Genome Research if you use trackcluster in your work.
-
-Li, R., Ren, X., Ding, Q., Bi, Y., Xie, D. and Zhao, Z., 2020. Direct full-length RNA sequencing reveals unexpected transcriptome complexity during *Caenorhabditis elegans* development. **Genome research**, 30(2), pp.287-298.
